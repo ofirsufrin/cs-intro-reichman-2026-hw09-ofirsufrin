@@ -33,6 +33,7 @@ public class List {
         CharData newCharData = new CharData(chr);
         Node newNode = new Node(newCharData, first);
         first = newNode;
+        size++;
     }
     
     /** GIVE Textual representation of this list. */
@@ -94,6 +95,7 @@ public class List {
                 } else {
                     prev.next = current.next;
                 }
+            size--;
             return true;
             }
             prev = current; 

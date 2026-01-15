@@ -33,19 +33,58 @@ public class LanguageModel {
 
     /** Builds a language model from the text in the given file (the corpus). */
 	public void train(String fileName) {
-		// Your code goes here
-	}
+        String window = "";
+        char c;
+        In in = new In(fileName);
+        for (int i = 0; i < windowLength; i++) {
+            if (in.isEmpty() == false) {
+                char next = in.readChar();
+                window = window + next;
+            }
+        }
+        while (in.isEmpty() == false) {
+            c = in.readChar();
+            List probs = CharDataMap.get(window);
+            if (probs == null) {
+                probs = new List();
+                CharDataMap.put(window, probs);
+            }
+
+            probs.update(c);
+            window = window.substring(1) + c;
+        }
+            for (List probs : CharDataMap.values()) {
+                calculateProbabilities(probs);
+            }
+        }
 
     // Computes and sets the probabilities (p and cp fields) of all the
 	// characters in the given list. */
-	void calculateProbabilities(List probs) {				
-		// Your code goes here
+	void calculateProbabilities(List probs) {	
+        CharData[] dataArray = probs.toArray();
+        int totalCount = 0;
+        for (int i = 0; i < dataArray.length; i++) {
+            totalCount += dataArray[i].count;
+        }
+        double cumulativeProb = 0;
+        for (int i = 0; i < dataArray.length; i++) {
+            CharData cd = dataArray[i];
+            cd.p = (double) cd.count / totalCount;
+            cumulativeProb += cd.p;
+            cd.cp = cumulativeProb;
+        }
 	}
 
     // Returns a random character from the given probabilities list.
 	char getRandomChar(List probs) {
-		// Your code goes here
-		return ' ';
+		double r = Math.random();
+        CharData[] dataArray = probs.toArray();
+        for (int i = 0; i < dataArray.length; i++) {
+            if (dataArray[i].cp > r) {
+                return dataArray[i].chr;
+            }
+        }
+		return dataArray[dataArray.length - 1].chr;;
 	}
 
     /**
